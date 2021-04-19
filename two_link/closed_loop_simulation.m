@@ -1,3 +1,7 @@
+% Define number of DoF
+% s = c0*q // motion generator as a linear combination of q
+% y = H0*q - phi(s) // define y in the following way
+% p is parameter vector for polynom/bezier curve 
 N_dof = 2;
 c0 = [1, 0];
 H0 = [0, 1];
@@ -53,7 +57,7 @@ end
 % simulation time
 t = 0:delta_t:no_iter*delta_t;
 
-% Check feedforward
+% Check feedforward consistency
 
 uff_1 = zeros(1, length(s_str));
 uff_2 = zeros(1, length(s_str));
@@ -68,7 +72,7 @@ end
 
 
 x0_str = [q_str(:,1)' qd_str(:,1)'];
-x0_dstbd = x0_str + delta_x0;
+x0_dstbd = x0_str + delta_x0; % initial state
 
 % integrator options
 optns_ode45 = odeset('AbsTol',1e-10,'RelTol',1e-8);
