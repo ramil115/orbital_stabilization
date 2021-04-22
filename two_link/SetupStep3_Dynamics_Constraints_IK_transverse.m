@@ -89,13 +89,11 @@ SRD_save(Handler_reduced_dynamics_and_transverse_linearization, 'Handler_reduced
 
 
 
-
-
 g = SRD_get('Handler_dynamics_generalized_coordinates_model');
 
 h = SRD_get('Handler_reduced_dynamics_and_transverse_linearization');
 
-return
+% return
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -121,10 +119,10 @@ return
 
 %%%%%%%%%%%%
 %construct constraint
-constraint = SymbolicEngine.LinkArray(4).AbsoluteFollower(3);
+constraint = SymbolicEngine.LinkArray(2).AbsoluteFollower(3);
 
-constraintR = [SymbolicEngine.LinkArray(4).AbsoluteFollower(3); 
-              SymbolicEngine.LinkArray(4).AbsoluteFollower(3)*2]; 
+constraintR = [SymbolicEngine.LinkArray(2).AbsoluteFollower(3); 
+              SymbolicEngine.LinkArray(2).AbsoluteFollower(3)*2]; 
 %%%%%%%%%
 
 description = SRD_generate_second_derivative_Jacobians('SymbolicEngine', SymbolicEngine, ...
