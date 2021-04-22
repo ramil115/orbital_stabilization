@@ -1,28 +1,20 @@
-% Define number of DoF
-% s = c0*q // motion generator as a linear combination of q
-% y = H0*q - phi(s) // define y in the following way
-% p is parameter vector for polynom/bezier curve 
-N_dof = 2;
-c0 = [1, 0];
-H0 = [0, 1];
-p = [0 1];
+close all; clear classes; clc;
 
-vrtl_cnstr = VirtualConstraint(N_dof, length(p)-1,...
-        'ordinary', c0, H0);
+h = SRD_get('Handler_reduced_dynamics_and_transverse_linearization');
+
+
+p = [0 1]; % vrtl cnstr parameter vector
+vrtl_cnstr = SRDt_VirtualConstraint(h.N_dof, length(p)-1, 'ordinary', h.c0, h.H0);
 
 
 [s_str, sd_str, q_str, qd_str, qdd_str, T, A, B] = SRDt_get_nominal_trajectory(...
-    'N_dof', 2, ...
-    'c0', [1, 0], ...
-    'H0', [0, 1], ...
+    'Handler_reduced_dynamics_and_transverse_linearization', h, ...    
     'p', [0 1], ...
+    'vrtl_cnstr_obj', vrtl_cnstr, ...
     's0', 0.1, ...
     'dt', 0.01);
-    
-   
 
-
-
+return
 %% Script for designing the controller 
 N = size(A,3);
 dt = T/(N-1); % to consider zero 
