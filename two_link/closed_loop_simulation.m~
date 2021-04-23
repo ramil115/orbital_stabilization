@@ -161,13 +161,11 @@ h = @(t,x,u) full_dnmcs_ode(x,u,g);
 % h = @full_dnmcs_ode;
 % function  dxdt = full_dnmcs_ode(x,u)
 function  dxdt = full_dnmcs_ode(x,u,g)
-    n = g.dof_configuration_space_robot;
-    
-    H = g.get_H(x(1:n));
-    C = g.get_C(x(1:n), x((n+1):end));
-    gr = g.get_g(x(1:n));        
+    H = g.get_H(x(1:2));
+    C = g.get_C(x(1:2), x(3:4));
+    gr = g.get_g(x(1:2));        
     T = g.get_T();   
-    dxdt = [x((n+1):end); H\(T * u - C * x((n+1):end) - gr)];
+    dxdt = [x(3:4); H\(T * u - C * x(3:4) - gr)];
 end
 end
 
