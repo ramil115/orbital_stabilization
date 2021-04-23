@@ -58,29 +58,32 @@ end
 % simulation time
 t = 0:delta_t:no_iter*delta_t;
 
-% Check feedforward consistency
+Check_feedforward = false;
 
-uff_1 = zeros(1, length(nmnl_trj.s));
-uff_2 = zeros(1, length(nmnl_trj.s));
-for i = 1:length(nmnl_trj.s)
-    uff_1(i) = pinv(Handler_dynamics_HCg_model.get_T())*...
-        (Handler_dynamics_HCg_model.get_H(nmnl_trj.q(:,i))*nmnl_trj.qdd(:,i) + ...
-        Handler_dynamics_HCg_model.get_C(nmnl_trj.q(:,i), nmnl_trj.qd(:,i))*nmnl_trj.qd(:,i) + ...
-        Handler_dynamics_HCg_model.get_g(nmnl_trj.q(:,i)));
-    uff_2(i) = Handler_t_linearization.get_Uff(...
-        nmnl_trj.q(1,i), ...
-        nmnl_trj.qd(1,i), ...
-        0, ...
-        0, ...
-        Handler_t_linearization.H0*vrtl_cnstr.Phi(nmnl_trj.q(1,i), p),...
-        Handler_t_linearization.H0*vrtl_cnstr.Phi_prm(nmnl_trj.q(1,i), p), ...
-        Handler_t_linearization.H0*vrtl_cnstr.Phi_2prm(nmnl_trj.q(1,i), p));
-end
+if Check_feedforward
 
-if max(abs(uff_1-uff_2))< 1e-6
-    disp('Feedforward is consistent')
-else
-    disp('Feedforward is NOT consistent')
+    uff_1 = zeros(1, length(nmnl_trj.s));
+    uff_2 = zeros(1, length(nmnl_trj.s));
+    for i = 1:length(nmnl_trj.s)
+        uff_1(i) = pinv(Handler_dynamics_HCg_model.get_T())*...
+            (Handler_dynamics_HCg_model.get_H(nmnl_trj.q(:,i))*nmnl_trj.qdd(:,i) + ...
+            Handler_dynamics_HCg_model.get_C(nmnl_trj.q(:,i), nmnl_trj.qd(:,i))*nmnl_trj.qd(:,i) + ...
+            Handler_dynamics_HCg_model.get_g(nmnl_trj.q(:,i)));
+        uff_2(i) = Handler_t_linearization.get_Uff(...
+            nmnl_trj.q(1,i), ...
+            nmnl_trj.qd(1,i), ...
+            0, ...
+            0, ...
+            Handler_t_linearization.H0*vrtl_cnstr.Phi(nmnl_trj.q(1,i), p),...
+            Handler_t_linearization.H0*vrtl_cnstr.Phi_prm(nmnl_trj.q(1,i), p), ...
+            Handler_t_linearization.H0*vrtl_cnstr.Phi_2prm(nmnl_trj.q(1,i), p));
+    end
+
+    if max(abs(uff_1-uff_2))< 1e-6
+        disp('Feedforward is consistent')
+    else
+        disp('Feedforward is NOT consistent')
+    end
 end
 
 x0_str = [nmnl_trj.q(:,1)' nmnl_trj.qd(:,1)'];
@@ -95,13 +98,13 @@ odefun = get_handler_full_dnmcs_ode(Handler_dynamics_HCg_model);
 h_Intg2 = SRDt_get_handler_Intg2(p, vrtl_cnstr, Handler_t_linearization);
 
 % prelocate variables
-x_dstbd = zeros(no_iter,4);
-y = zeros(no_iter,1);
-y_d = zeros(no_iter,1);
+x_dstbd = zeros(no_iter,2*Handler_t_linearization.N_dof);
+y = zeros(no_iter,Handler_t_linearization.N_dof-1);
+y_d = zeros(no_iter,Handler_t_linearization.N_dof-1);
 I = zeros(no_iter,1);
-u = zeros(no_iter,1);
-ufb = zeros(no_iter,1);
-uff = zeros(no_iter,1);
+u = zeros(no_iter,Handler_t_linearization.N_dof-1);
+ufb = zeros(no_iter,Handler_t_linearization.N_dof-1);
+uff = zeros(no_iter,Handler_t_linearization.N_dof-1);
 
 x_dstbd(1,:) = x0_dstbd;
 
@@ -120,8 +123,8 @@ for i = 1:no_iter
     [~, idx] = min(delta_x_nrm); % choose minimum distance
     
     % introduce the motion generator for readability of the code
-    si = x_dstbd(i,1);
-    sdi = x_dstbd(i,3);
+    si = Handler_t_linearization.c0*x_dstbd(i,1:Handler_t_linearization.N_dof)';
+    sdi = Handler_t_linearization.c0*x_dstbd(i,(Handler_t_linearization.N_dof+1):end)';
     
        
     phi2i = Handler_t_linearization.H0*vrtl_cnstr.Phi(si, p);
@@ -129,10 +132,12 @@ for i = 1:no_iter
     phi2_2prmi = Handler_t_linearization.H0*vrtl_cnstr.Phi_2prm(si, p);
 
     % Compute Transverse coordinates
-    I_cur = h_Intg2(si, sdi, nmnl_trj.q(1, idx), nmnl_trj.qd(1, idx));
-    y_cur = x_dstbd(i,2) - phi2i;
-    y_d_cur = x_dstbd(i,4) - phi2_prmi*sdi;
-    x_trsv_cur = [I_cur, y_cur, y_d_cur]';
+    I_cur = h_Intg2(si, sdi, ...
+        Handler_t_linearization.c0*nmnl_trj.q(:, idx), ...
+        Handler_t_linearization.c0*nmnl_trj.qd(:, idx));
+    y_cur = Handler_t_linearization.H0*x_dstbd(i,1:Handler_t_linearization.N_dof)' - phi2i;
+    y_d_cur = Handler_t_linearization.H0*x_dstbd(i,(Handler_t_linearization.N_dof+1):end)' - phi2_prmi*sdi;
+    x_trsv_cur = [I_cur; y_cur; y_d_cur];
    
     
     
@@ -155,6 +160,12 @@ for i = 1:no_iter
    
     x_dstbd(i+1,:) = x_cur(end,:);
 end
+
+figure(1)
+plot(x_dstbd(:,1),x_dstbd(:,3));
+
+figure(2)
+plot(x_dstbd(:,2),x_dstbd(:,4));
 
 function h = get_handler_full_dnmcs_ode(g)
 h = @(t,x,u) full_dnmcs_ode(x,u,g);
