@@ -63,6 +63,7 @@ description = SRD_generate_dynamics_HCg_model(...
 
 Handler_dynamics_HCg_model = SRD_get_handler__dynamics_HCg_model('description', description);
 SRD_save(Handler_dynamics_HCg_model, 'Handler_dynamics_HCg_model');
+Handler_dynamics_HCg_model = SRD_get('Handler_dynamics_HCg_model');
 
 
 description = SRDt_reduced_dynamics_and_transverse_linearization(...
@@ -84,6 +85,7 @@ description = SRDt_reduced_dynamics_and_transverse_linearization(...
     'H0', [0, 1], ...
     'Path', 'Transverse/');
 
+
 Handler_reduced_dynamics_and_transverse_linearization = SRD_get_handler_reduced_dynamics_and_transverse_linearization('description', description);
 SRD_save(Handler_reduced_dynamics_and_transverse_linearization, 'Handler_reduced_dynamics_and_transverse_linearization');
 
@@ -93,7 +95,7 @@ g = SRD_get('Handler_dynamics_generalized_coordinates_model');
 
 h = SRD_get('Handler_reduced_dynamics_and_transverse_linearization');
 
-% return
+return
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
