@@ -91,9 +91,7 @@ SRD_save(Handler_reduced_dynamics_and_transverse_linearization, 'Handler_reduced
 
 
 
-g = SRD_get('Handler_dynamics_generalized_coordinates_model');
-
-h = SRD_get('Handler_reduced_dynamics_and_transverse_linearization');
+% h = SRD_get('Handler_reduced_dynamics_and_transverse_linearization');
 
 return
 
