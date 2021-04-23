@@ -63,6 +63,7 @@ description = SRD_generate_dynamics_HCg_model(...
 
 Handler_dynamics_HCg_model = SRD_get_handler__dynamics_HCg_model('description', description);
 SRD_save(Handler_dynamics_HCg_model, 'Handler_dynamics_HCg_model');
+Handler_dynamics_HCg_model = SRD_get('Handler_dynamics_HCg_model');
 
 
 description = SRDt_reduced_dynamics_and_transverse_linearization(...
@@ -84,10 +85,9 @@ description = SRDt_reduced_dynamics_and_transverse_linearization(...
     'H0', [0, 1], ...
     'Path', 'Transverse/');
 
+
 Handler_reduced_dynamics_and_transverse_linearization = SRD_get_handler_reduced_dynamics_and_transverse_linearization('description', description);
 SRD_save(Handler_reduced_dynamics_and_transverse_linearization, 'Handler_reduced_dynamics_and_transverse_linearization');
-
-
 
 
 
@@ -121,10 +121,10 @@ return
 
 %%%%%%%%%%%%
 %construct constraint
-constraint = SymbolicEngine.LinkArray(4).AbsoluteFollower(3);
+constraint = SymbolicEngine.LinkArray(2).AbsoluteFollower(3);
 
-constraintR = [SymbolicEngine.LinkArray(4).AbsoluteFollower(3); 
-              SymbolicEngine.LinkArray(4).AbsoluteFollower(3)*2]; 
+constraintR = [SymbolicEngine.LinkArray(2).AbsoluteFollower(3); 
+              SymbolicEngine.LinkArray(2).AbsoluteFollower(3)*2]; 
 %%%%%%%%%
 
 description = SRD_generate_second_derivative_Jacobians('SymbolicEngine', SymbolicEngine, ...
